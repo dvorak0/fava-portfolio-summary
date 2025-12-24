@@ -289,7 +289,9 @@ class PortfolioSummaryInstance:  # pragma: no cover
             total_currency_cost = ZERO
             total_currency_value = ZERO
 
-            result = self.ledger.query_shell.execute_query(
+            entries = self.ledger.all_entries
+            opts = self.ledger.options
+            result = self.ledger.query_shell.execute_query(entries,
                 "SELECT "
                 f"convert(cost(position),'{self.operating_currency}',cost_date) AS cost, "
                 f"convert(value(position) ,'{self.operating_currency}',today()) AS value "
@@ -346,7 +348,9 @@ class PortfolioSummaryInstance:  # pragma: no cover
             for child in node['children']:
                 row = self._process_node(child, dividends)
                 if 'balance' not in row:
-                    continue
+                    row['balance'] = 0
+                    row['cost'] = 0
+                    row['dividends'] = 0
                 parent['balance'] += row['balance']
                 parent['cost'] += row['cost']
                 parent['dividends'] += row['dividends']
